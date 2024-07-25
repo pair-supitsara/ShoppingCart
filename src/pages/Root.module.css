@@ -1,0 +1,28 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.container {
+    display: flex;
+    justify-content: center;
+    height: 100vh;
+    width: 100vw;
+    background-color: #282c34;
+    color: white;
+    overflow: auto;
+}
+.navigation {
+    position: fixed;
+    display: block;
+    height: 10vh;
+    width: 100vw;
+}
+.main {
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    width: 60%;
+    padding: 4rem 0;
+}

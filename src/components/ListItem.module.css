@@ -1,0 +1,26 @@
+.parentbox {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+}
+.childrenbox {
+    background-color: rgb(255, 255, 255);
+    padding: 0rem;
+    box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+}
+.image {
+    width: 100%;
+    box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+}
+.info {
+    color: black;
+    display: flex;
+    flex-direction: column;
+    padding: .75rem;
+}
+.buttons {
+    display: flex;
+    justify-content: center;
+    margin-top: .75rem;
+}

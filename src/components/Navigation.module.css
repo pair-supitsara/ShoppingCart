@@ -1,0 +1,18 @@
+.nav {
+    list-style-type: none;
+    background-color: #231f20;
+}
+.nav-item {
+    display: inline-block;   
+}
+
+.nav-item a {
+    padding: .75rem 1.25rem;
+    text-decoration: none;
+    font-weight: 800;
+    color: #9a9294;
+    display: block;
+}
+.nav-item a.active {
+    color: #ffffff;
+}

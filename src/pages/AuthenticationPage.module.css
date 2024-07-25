@@ -1,0 +1,19 @@
+.form {
+    display: block;
+    width: 80%;
+}
+.center {
+    display: block;
+    width: 100%;
+    margin: .5rem 0;
+}
+.between {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin: .5rem 0;
+}
+
+.link {
+    color: white;
+}

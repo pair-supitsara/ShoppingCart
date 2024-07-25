@@ -1,0 +1,16 @@
+
+.row {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+.label {
+    color: white;
+    margin: .25rem 0;
+}
+.input {
+    margin: .25rem 0;
+    letter-spacing: .02rem;
+    padding: .25rem;
+    width: 100%;
+}

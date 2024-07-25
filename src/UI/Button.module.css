@@ -1,0 +1,22 @@
+.button {
+    background-color: rgb(230, 221, 221);
+    color: rgb(47, 47, 47);
+    border: 0;
+    padding: .3rem .6rem;
+    border-radius: .2rem;
+    margin: .25rem .25rem;
+    box-shadow: 0 0 4px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+}
+.button:hover {
+    background-color: rgb(212, 178, 41);
+    cursor: pointer;
+    transform: translateY(-2px) translateX(-2px);
+}
+.navy {
+    background-color: rgb(39, 39, 89);
+    color: white;
+}
+.red {
+    background-color: rgb(185, 47, 47);
+    color: white;
+}

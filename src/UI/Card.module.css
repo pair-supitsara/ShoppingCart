@@ -1,0 +1,16 @@
+.card {
+    background-color: rgb(71, 71, 71);
+    border-radius: .5rem;
+    padding: .75rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    width: 100%;
+}
+
+.bgtranparent {
+    background: transparent !important;
+}
