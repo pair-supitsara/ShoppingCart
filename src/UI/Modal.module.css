@@ -1,0 +1,29 @@
+.backdrop {
+    background-color: #00000060;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+    /* position the div in center */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.dialog {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border: 0;
+    box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+    padding: 1rem;
+
+    /* alignment of children in dialog */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
