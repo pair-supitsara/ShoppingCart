@@ -23,7 +23,7 @@ function ListItem({ type }) {
         }
     ]
     const isEditable = (type === 'editable')
-    const [isOpen, setIsOpen] = useState(true)
+    const [isOpen, setIsOpen] = useState(false)
 
     return (
         <>
@@ -40,7 +40,7 @@ function ListItem({ type }) {
             <div className={classes.parentbox}>{
                 arrayItem.map((item) => 
                     (<div key={item.name} className={classes.childrenbox}>
-                        <img src={'./hood.jpg'} className={classes.image} />
+                        <img src={'./hood.jpg'} className={classes.image} alt='hood' />
                         <div className={classes.info}>
                             <h3>{item.name}</h3>
                             <p>{item.description}</p>

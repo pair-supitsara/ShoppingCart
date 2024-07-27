@@ -6,12 +6,11 @@ import RootLayout from './pages/Root';
 import Shop from './pages/Shop.jsx'
 import Admin from './pages/Admin.jsx'
 import TestRedux from './pages/TestRedux.jsx';
-import AuthPage, { action as authAction } from './pages/AuthenticationPage';
+import AuthPage from './pages/AuthenticationPage';
 import { action as logoutAction } from './pages/Logout.js'
 import { getAuthToken } from './util/auth';
 import { Provider } from 'react-redux'
 import store from './store/index.js'
-
 
 const router = createBrowserRouter([
   {
@@ -27,8 +26,7 @@ const router = createBrowserRouter([
       },
       {
         path: '/auth',
-        element: <AuthPage />,
-        action: authAction
+        element: <AuthPage />
       },
       {
         path: '/testredux', /* test redux */
@@ -36,7 +34,7 @@ const router = createBrowserRouter([
       },
       {
         path: '/admin',
-        element: <Admin/>,
+        element: <Admin/>
       },
       {
         path: '/logout',
