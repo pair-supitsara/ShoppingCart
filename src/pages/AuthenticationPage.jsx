@@ -13,7 +13,7 @@ function AuthPage() {
   const [searchParams] = useSearchParams()
   const isLogin = searchParams.get('mode') === 'login'
   const mode = searchParams.get('mode') || 'register'
-  const [errorMsg, setErrorMsg] = useState(null)
+  const [message, setMessage] = useState(null)
 
   async function authenHandler() {
     try {
@@ -36,20 +36,20 @@ function AuthPage() {
       if (rpjson && rpjson.json && rpjson.json.token) {
         localStorage.setItem('token', rpjson.json.token)
       } else {
-        setErrorMsg(rpjson.json.message)
+        setMessage(rpjson.json.message)
       }
 
       if (rpjson && rpjson.json && rpjson.json.message) {
-        setErrorMsg(rpjson.json.message)
+        setMessage(rpjson.json.message)
       }
     } catch (error) {
-      setErrorMsg(error.message)
+      setMessage(error.message)
     }
   }
   return (<>
-      {errorMsg && <Modal>
-        <p>{ errorMsg }</p>
-        <Button text='Ok' onClick={() => setErrorMsg('')} cssClass='red' />
+      {message && <Modal>
+        <p>{ message }</p>
+        <Button text='Ok' onClick={() => setMessage('')} cssClass='red' />
       </Modal>}
       <Card> 
         <h1>{isLogin ? 'Log in' : 'Create a new user'}</h1>

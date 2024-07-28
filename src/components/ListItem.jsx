@@ -1,52 +1,71 @@
 import classes from './ListItem.module.css'
 import Button from '../UI/Button';
 import Modal from '../UI/Modal';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 function ListItem({ type }) {
-    const arrayItem = [
-        {
-            name: 'name item 1',
-            description: 'description...'
-        },
-        {
-            name: 'name item 2',
-            description: 'description...'
-        },
-        {
-            name: 'name item 3',
-            description: 'description...'
-        },
-        {
-            name: 'name item 4',
-            description: 'description...'
-        }
-    ]
+    const [products, setProducts] = useState([])
     const isEditable = (type === 'editable')
-    const [isOpen, setIsOpen] = useState(false)
+    const [isUpdated, setUpdated] = useState(false)
+    const [isRemoved, setIsRemoved] = useState(false)
+    useEffect(() => {
+        const data = {}
+        async function fetchProducts() {
+            try {
+                const response = await fetch(`http://localhost:8080/api/customers/products`, {
+                    method: 'post',
+                    body: JSON.stringify(data),
+                    headers: {
+                        "Content-Type": "application/json",
+                    }
+                })
+                if (!response.ok) {
+                    throw new Error(`Response status: ${response.status}`);
+                }
+                const rpjson = await response.json();
+                if (rpjson && rpjson.json) {
+                    setProducts(rpjson.json.data)
+                } else {
 
+                }
+            } catch (error) {
+                alert(error.message)
+            }
+        }
+        fetchProducts()
+    }, [])
     return (
         <>
-            {isOpen && <Modal>
+            {isUpdated && <Modal>
+                <h3>Updated</h3>
+                <p>this is modal</p>
+                <div className={classes.buttons}>
+                    <Button text='confirm' cssClass='navy' onClick={() => { setUpdated(false) }} />
+                    <Button text='close' cssClass='red' onClick={() => { setUpdated(false) }} />
+                </div>
+                
+            </Modal>}
+
+            {isRemoved && <Modal>
                 <h3>Confirm remove item</h3>
                 <p>this is modal</p>
                 <div className={classes.buttons}>
-                    <Button text='confirm' cssClass='navy' onClick={ ()=> { setIsOpen(false) }} />
-                    <Button text='close' cssClass='red' onClick={ ()=> { setIsOpen(false) }} />
+                    <Button text='confirm' cssClass='navy' onClick={() => { setIsRemoved(false) }} />
+                    <Button text='close' cssClass='red' onClick={() => { setIsRemoved(false) }} />
                 </div>
                 
             </Modal>}
 
             <div className={classes.parentbox}>{
-                arrayItem.map((item) => 
+                products.map((item) => 
                     (<div key={item.name} className={classes.childrenbox}>
                         <img src={'./hood.jpg'} className={classes.image} alt='hood' />
                         <div className={classes.info}>
                             <h3>{item.name}</h3>
-                            <p>{item.description}</p>
+                            <p>{item.detail}</p>
                             {isEditable && <div className={classes.buttons}>
-                                <Button text='update' cssClass='navy' />
-                                <Button text='remove' cssClass='red' />
+                                <Button text='update' cssClass='navy' onClick={() => setUpdated(true) } />
+                                <Button text='remove' cssClass='red' onClick={() => setIsRemoved(true) } />
                             </div>}
                         </div>
                     </div>)
