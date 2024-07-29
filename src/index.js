@@ -6,7 +6,7 @@ import RootLayout from './pages/Root';
 import Shop from './pages/Shop.jsx'
 import Admin from './pages/Admin.jsx'
 import TestRedux from './pages/TestRedux.jsx';
-import AuthPage from './pages/AuthenticationPage';
+import AuthPage, { action as authAction } from './pages/AuthenticationPage';
 import { action as logoutAction } from './pages/Logout.js'
 import { getAuthToken } from './util/auth';
 import { Provider } from 'react-redux'
@@ -26,7 +26,8 @@ const router = createBrowserRouter([
       },
       {
         path: '/auth',
-        element: <AuthPage />
+        element: <AuthPage />,
+        action: authAction
       },
       {
         path: '/testredux', /* test redux */
@@ -45,10 +46,16 @@ const router = createBrowserRouter([
   }
 ]);
 
-ReactDOM.createRoot(document.getElementById("root")).render(
+/* ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <Provider store={store}>
       <RouterProvider router={router} />
     </Provider>
   </React.StrictMode>
+); */
+
+ReactDOM.createRoot(document.getElementById("root")).render(
+  <Provider store={store}>
+    <RouterProvider router={router} />
+  </Provider>
 );

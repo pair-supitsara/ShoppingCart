@@ -5,6 +5,7 @@ import Input from '../UI/Input';
 import classes from './FormAddNewItem.module.css'
 import { useRef, useState } from 'react';
 import Modal from '../UI/Modal'
+import { fetchdata } from '../util/api';
 
 function generateFilename() {
   const date = new Date()
@@ -39,15 +40,10 @@ function FormAddNewItem() {
         image: selectedfile.current.file.split(',')[1],
         filename: `${generateFilename()}.${filetype.current}`
       }
-      const response = await fetch(`http://localhost:8080/api/admin/addnewitem`, {
-        method: 'post',
-        body: JSON.stringify(data),
-        headers: {
-          "Content-Type": "application/json",
-        }
-      })
-      if (!response.ok) {
-        throw new Error(`Response status: ${response.status}`);
+      const result = await fetchdata('http://localhost:8080/api/admin/addnewitem', data)
+      console.log(result)
+      if (result && result.message) {
+        setMessage(result.message)
       }
     } catch (error) {
       setMessage(error.message)
@@ -56,9 +52,8 @@ function FormAddNewItem() {
   }
 
   return (<>
-    {message && <Modal>
+      {message && <Modal onCancel={() => { setMessage('') }}>
         <p>{ message }</p>
-        <Button text='Ok' onClick={() => setMessage('')} cssClass='red' />
       </Modal>}
       <Card className={classes.card}>
           <h2>Add new Item</h2>

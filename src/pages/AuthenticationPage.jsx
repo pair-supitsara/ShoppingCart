@@ -1,69 +1,72 @@
-import { Form, Link, useSearchParams, useActionData } from 'react-router-dom'
+import { Form, useActionData, redirect, useSubmit} from 'react-router-dom'
 import Button from '../UI/Button'
 import Card from '../UI/Card'
 import Input from '../UI/Input'
 import classes from './AuthenticationPage.module.css'
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import Modal from '../UI/Modal'
+import { fetchdata } from '../util/api';
 
 function AuthPage() {
+  const [forceRender, setForcedRender] = useState(false)
   const email = useRef()
   const password = useRef()
-  const data = useActionData()
-  const [searchParams] = useSearchParams()
-  const isLogin = searchParams.get('mode') === 'login'
-  const mode = searchParams.get('mode') || 'register'
+  const actionData = useActionData()
+  const [mode, setMode] = useState('login')
   const [message, setMessage] = useState(null)
-
-  async function authenHandler() {
-    try {
-      const authData = {
-        email: email.current.value,
-        password: password.current.value
-      }
-      console.log(authData)
-      const response = await fetch(`http://localhost:8080/api/authen/${mode}`, {
-        method: 'post',
-        body: JSON.stringify(authData),
-        headers: {
-          "Content-Type": "application/json",
-        }
-      })
-      if (!response.ok) {
-        throw new Error(`Response status: ${response.status}`);
-      }
-      const rpjson = await response.json();
-      if (rpjson && rpjson.json && rpjson.json.token) {
-        localStorage.setItem('token', rpjson.json.token)
-      } else {
-        setMessage(rpjson.json.message)
-      }
-
-      if (rpjson && rpjson.json && rpjson.json.message) {
-        setMessage(rpjson.json.message)
-      }
-    } catch (error) {
-      setMessage(error.message)
+  let submit = useSubmit();
+  
+  useEffect(() => {
+    if (actionData) {
+      setMessage(actionData);
     }
+  }, [actionData, forceRender]);
+
+  const handleSubmit = useCallback(async (event) => {
+    event.preventDefault()
+    const formData = {
+      mode,
+      email: email.current.value,
+      password: password.current.value
+    }
+    const isValid = fnValidateAuthen(formData)
+    if (isValid) {
+      submit(formData, {
+        method: "post",
+        action: "/auth",
+      });
+      setForcedRender((prev) => !prev)
+    } else {
+      const html = (<span>isNotValid</span>)
+      setMessage(html)
+    }
+  }, [mode, email, password, submit])
+
+  function fnValidateAuthen(formData) {
+    const array = Object.values(formData)
+    return array.filter((item) => item === "").length === 0
   }
+
   return (<>
-      {message && <Modal>
+      {message && <Modal onCancel={() => setMessage('')}>
         <p>{ message }</p>
-        <Button text='Ok' onClick={() => setMessage('')} cssClass='red' />
       </Modal>}
       <Card> 
-        <h1>{isLogin ? 'Log in' : 'Create a new user'}</h1>
-        { data && <span>{ data }</span>}
-        <Form onSubmit={authenHandler} className={classes.form}>
+        <h1>{mode === 'login' ? 'Log in' : 'Create a new user'}</h1>
+        <Form onSubmit={handleSubmit} className={classes.form} >
           <div className={classes.center}>
-            <Input type='email' id='email' name='email' label='E-mail' ref={email} />
+            <Input type='email' id='email' name='email' label='E-mail' ref={email} required={true} />
           </div>
           <div className={classes.center}>
-            <Input type='password' id='password' name='password' label='Password' ref={password} />
+            <Input type='password' id='password' name='password' label='Password' ref={password} required={true} />
           </div>
           <div className={classes.between}>
-            <Link className={classes.link} to={`?mode=${isLogin ? 'register' : 'login'}`} >{isLogin ? 'Create User' : 'Login'}</Link>
-            <Button type='submit' text={isLogin ? 'LogIn' : 'Register'} cssClass='navy' />
+            {/*<Link className={classes.link} to={`?mode=${isLogin ? 'register' : 'login'}`} >{isLogin ? 'Create User' : 'Login'}</Link>*/}
+            <Button type='button' 
+                text={mode === 'login' ? 'Create User' : 'Login'} 
+                cssClass='navy' 
+                onClick={() => { setMode((mode) => mode === 'login' ? 'register' : 'login') }} />
+            <Button type='submit' text={mode === 'login' ? 'LogIn' : 'Register'} cssClass='navy' />
           </div>
         </Form>
       </Card>
@@ -72,3 +75,24 @@ function AuthPage() {
 }
 
 export default AuthPage;
+
+export async function action({ request }) {
+  try {
+    const data = await request.formData()
+    const mode = data.get('mode') || 'register'
+    const authData = {
+      email: data.get('email'),
+      password: data.get('password')
+    }
+    const result = await fetchdata(`http://localhost:8080/api/authen/${mode}`, authData)
+    if (result && result.token) {
+      localStorage.setItem('token', result.token)
+      return redirect('/')
+    }
+    if (result && result.message) {
+      return result.message
+    }
+  } catch (error) {
+    return error.message
+  }
+}
