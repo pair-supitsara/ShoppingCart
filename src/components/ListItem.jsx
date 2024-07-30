@@ -1,19 +1,48 @@
 import classes from './ListItem.module.css'
 import Button from '../UI/Button';
+import Input from '../UI/Input';
 import Modal from '../UI/Modal';
 import { useState, useEffect, useRef } from 'react';
 import { fetchdata } from '../util/api';
+import { generateFilename } from '../util/gen_random';
+import { useRouteLoaderData } from "react-router-dom";
+import Loader from '../UI/Loader';
 
-function ListItem({ type }) {
-    const [products, setProducts] = useState([])
+function fnValidateData(json) {
+    const result = {
+        isvalid: true,
+        messages: []
+    }
+    if (!json.name) { 
+        result.isvalid = false 
+        result.messages.push('enter name of product')
+    }
+    if (!json.detail) { 
+        result.isvalid = false 
+        result.messages.push('enter detail of product')
+    }
+    if (!json.image.file || !json.image.filename) {
+        result.messages.push("you didn't change image, so it wouldn't be updated.")
+    }
+    return result
+}
+
+function ListItem({ type, render, setRender }) {
+    const [products, setProducts] = useState()
     const isEditable = (type === 'editable')
     const [isUpdated, setUpdated] = useState(false)
     const [isRemoved, setIsRemoved] = useState(false)
-    const itemToActive = useRef(null);
+    const selectedId = useRef(null);
     let modalRomove, modalUpdate
     const [message, setMessage] = useState(null)
-    // const [modal, setModal] = useState(null)
-    
+    const name = useRef(null);
+    const detail = useRef(null);
+    const token = useRouteLoaderData('root')
+    const [image, setImage] = useState({
+        file: null,
+        filename: null
+      });
+
     useEffect(() => {
         const data = {}
         /* helper */
@@ -29,17 +58,17 @@ function ListItem({ type }) {
             }
         }
         fetchProducts()
-    }, [])
+    }, [render])
 
-    function fnClickRemove(id) {
+    function fnClickRemoveButton(id) {
         setIsRemoved(true)
-        itemToActive.current = id
+        selectedId.current = id
     }
 
     if (isRemoved) {
         modalRomove = (
         <Modal 
-            onConfirm={() => { fnConfirmRemove() }} 
+            onConfirm={fnRemoveSelectedId} 
             onCancel={() => { setIsRemoved(false) }} 
         >
             <h3>Confirm remove item</h3>
@@ -47,12 +76,13 @@ function ListItem({ type }) {
         </Modal>)
     }
 
-    function fnConfirmRemove() {
+    function fnRemoveSelectedId() {
         async function removeProduct() {
             try {
-                const result = await fetchdata('http://localhost:8080/api/admin/removeproduct', { product_id: itemToActive.current })
+                const result = await fetchdata('http://localhost:8080/api/admin/removeproduct', { product_id: selectedId.current })
                 if (result && result.message) {
                     setMessage(result.message)
+                    setRender((prev) => !prev)
                 }
                 setIsRemoved(false)
             } catch (error) {
@@ -62,44 +92,75 @@ function ListItem({ type }) {
         removeProduct()
     }
 
-    function fnClickUpdate(id) {
+    function fnClickUpdateButton(id) {
         setUpdated(true)
-        itemToActive.current = id
+        selectedId.current = id
+        setImage({
+            file: null,
+            filename: null
+        })
     }
 
     if (isUpdated) {
-        modalUpdate = (
-            <Modal 
-                onConfirm={() => { fnConfirmUpdate() }} 
-                onCancel={() => { setUpdated(false) }}
-            >
-                <h3>detail product that want to updated</h3>
-                <p>{ 0 }</p>
-            </Modal>)
-
-        async function getProductById() {
-            try {
-                const result = await fetchdata('http://localhost:8080/api/customers/getproductbyid', { product_id: itemToActive.current })
-                console.log(result)
-                if (result.data.length > 0) {
-                    modalUpdate = (
-                        <Modal 
-                            onConfirm={() => { fnConfirmUpdate() }} 
-                            onCancel={() => { setUpdated(false) }}
-                        >
-                            <h3>detail product that want to updated</h3>
-                            <p>{ result.data[0].name }</p>
-                        </Modal>)
-                }
-            } catch (error) {
-                setMessage(error.message)
-            }
+        const selectedItem = products.filter(item => item.product_id === selectedId.current)
+        if (selectedItem && selectedItem[0]) {
+            modalUpdate = (
+                <Modal onConfirm={fnUpdateSelectedId} onCancel={() => { setUpdated(false) }} >
+                    <div className={classes['modal-update']}>
+                        <img className={classes.image} src={image.file || selectedItem[0].url} alt='hood' />
+                        <div className={classes.info}>
+                            <Input type='text' id='name' label='Name' name='name' defaultValue={ selectedItem[0].name } ref={name} />
+                            <Input type='text' id='detail' label='Detail' name='detail' defaultValue={ selectedItem[0].detail } ref={detail} />
+                            <Input type='file' id='image' label='Image' name='image' onChange={handleFileChange} />
+                        </div>
+                    </div>
+                </Modal>)
         }
-        getProductById()
     }
 
-    function fnConfirmUpdate() {
-        
+    function handleFileChange(event) {
+        const file = event.target.files[0]
+        const reader = new FileReader()
+        reader.onloadend = () => {
+            const filetype = file.name ? file.name.split('.')[1] : 'jpg'
+            setImage({
+                file: reader.result,
+                filename: `${generateFilename()}.${filetype}`
+            })
+        };
+        reader.readAsDataURL(file)
+      };
+
+    function fnUpdateSelectedId() {
+        const json = {
+            product_id: selectedId.current,
+            name: name.current.value,
+            detail: detail.current.value,
+            image: {
+                file: image.file ? image.file.split(',')[1] : null,
+                filename: image.filename
+            }
+        }
+        const result = fnValidateData(json)
+        if (result && result.messages.length > 0) { 
+            const html = (<ul>{ result.messages.map((item, index) => <li key={index}>{item}</li>) }</ul>)
+            setMessage(html)
+        }
+        if (result && result.isvalid) {
+            async function updateSelectedProduct() {
+                try {
+                    const result = await fetchdata('http://localhost:8080/api/admin/updateproduct', json)
+                    if (result && result.message) {
+                        setMessage(result.message)
+                        setRender((prev) => !prev)
+                    }
+                    setIsRemoved(false)
+                } catch (error) {
+                    setMessage(error.message)
+                }
+            }
+            updateSelectedProduct()
+        }
     }
 
     return (
@@ -107,23 +168,26 @@ function ListItem({ type }) {
             {modalUpdate}
             {modalRomove}
             {message && <Modal onCancel={() => setMessage('')}>
-                <p>{ message }</p>
+                { message }
             </Modal>}
-            <div className={classes.parentbox}>{
+            { !products && <Loader text='fetching data...' />}
+            { products && <div className={classes.parentbox}>{
                 products.map((item) => 
                     (<div key={item.product_id} className={classes.childrenbox}>
                         <img src={item.url} className={classes.image} alt='hood' />
                         <div className={classes.info}>
                             <h3>{item.name}</h3>
                             <p>{item.detail}</p>
+                            {(token && !isEditable) && <Button text='Add to cart' cssClass='navy' onClick={() => { }} />}
                             {isEditable && <div className={classes.buttons}>
-                                <Button text='update' cssClass='navy' onClick={() => fnClickUpdate(item.product_id) } />
-                                <Button text='remove' cssClass='red' onClick={() => fnClickRemove(item.product_id)} />
+                                <Button text='update' cssClass='navy' onClick={() => fnClickUpdateButton(item.product_id) } />
+                                <Button text='remove' cssClass='red' onClick={() => fnClickRemoveButton(item.product_id)} />
                             </div>}
                         </div>
                     </div>)
                 )
             }</div>
+            }
         </>
     );
 }

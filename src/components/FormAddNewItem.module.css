@@ -12,3 +12,24 @@
     justify-content: center;
     margin: .5rem 0;
 }
+
+.flex {
+    display: flex;
+}
+.left {
+    width: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.right {
+    width: 50%;
+    
+}
+.image {
+    display: block;
+    width: 14rem;
+    height: 14rem;
+    object-fit: cover;
+    box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+}

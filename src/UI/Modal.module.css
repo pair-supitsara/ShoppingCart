@@ -22,7 +22,7 @@
     border-radius: .25rem;
     box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
     padding: 1rem;
-
+    
     /* alignment of children in dialog */
     display: flex;
     flex-direction: column;

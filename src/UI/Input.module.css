@@ -5,7 +5,7 @@
     width: 100%;
 }
 .label {
-    color: white;
+    color: rgb(0, 0, 0);
     margin: .25rem 0;
 }
 .input {

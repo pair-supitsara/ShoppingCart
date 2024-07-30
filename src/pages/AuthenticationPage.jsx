@@ -37,8 +37,7 @@ function AuthPage() {
       });
       setForcedRender((prev) => !prev)
     } else {
-      const html = (<span>isNotValid</span>)
-      setMessage(html)
+      setMessage('Fill out the form')
     }
   }, [mode, email, password, submit])
 

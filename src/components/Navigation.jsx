@@ -13,7 +13,10 @@ function Navigation() {
             {/*<li className={classes['nav-item']}>
                 <NavLink to='/shop' className={({ isActive }) => isActive ? classes.active : undefined}>Shop</NavLink>
             </li>*/}
-            {<li className={classes['nav-item']}>
+            {token && <li className={classes['nav-item']}>
+                <NavLink to='/cart' className={({ isActive }) => isActive ? classes.active : undefined}>Cart</NavLink>
+            </li>}
+            {token && <li className={classes['nav-item']}>
                 <NavLink to='/admin' className={({ isActive }) => isActive ? classes.active : undefined}>Admin</NavLink>
             </li>}
             {!token && <li className={classes['nav-item']}>
