@@ -4,24 +4,6 @@
     justify-content: center;
     gap: 1rem;
 }
-.childrenbox {
-    background-color: rgb(255, 255, 255);
-    padding: 0rem;
-    box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
-}
-.image {
-    display: block;
-    width: 12rem;
-    height: 12rem;
-    object-fit: cover;
-    box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
-}
-.info {
-    color: black;
-    display: flex;
-    flex-direction: column;
-    padding: .75rem;
-}
 .modal-update {
     display: flex !important;
     flex-direction: row;

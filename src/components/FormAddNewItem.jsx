@@ -1,4 +1,4 @@
-import { Form } from 'react-router-dom'
+import { Form, useRouteLoaderData } from 'react-router-dom'
 import Button from '../UI/Button'
 import Card from '../UI/Card'
 import Input from '../UI/Input';
@@ -9,6 +9,7 @@ import { fetchdata } from '../util/api';
 import { generateFilename } from '../util/gen_random';
 
 function FormAddNewItem({ render, setRender }) {
+  const { token } = useRouteLoaderData('root')
   const name = useRef(null)
   const detail = useRef(null)
   const [message, setMessage] = useState(null)
@@ -37,6 +38,7 @@ function FormAddNewItem({ render, setRender }) {
     event.preventDefault();
     try {
       const data = {
+        token,
         name: name.current.value,
         detail: detail.current.value,
         image: image.file ? image.file.split(',')[1] : null,

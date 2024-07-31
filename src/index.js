@@ -7,6 +7,7 @@ import Shop from './pages/Shop.jsx'
 import Admin from './pages/Admin.jsx'
 import TestRedux from './pages/TestRedux.jsx';
 import Cart from './pages/Cart.jsx'
+import User from './pages/User.jsx'
 import AuthPage, { action as authAction } from './pages/AuthenticationPage';
 import { action as logoutAction } from './pages/Logout.js'
 import { getAuthToken } from './util/auth';
@@ -33,6 +34,10 @@ const router = createBrowserRouter([
       {
         path: '/cart',
         element: <Cart />
+      },
+      {
+        path: '/User',
+        element: <User />
       },
       {
         path: '/testredux', /* test redux */

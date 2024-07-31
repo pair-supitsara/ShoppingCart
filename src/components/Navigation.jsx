@@ -3,7 +3,7 @@ import classes from './Navigation.module.css'
 import Button from "../UI/Button";
 
 function Navigation() {
-    const token = useRouteLoaderData('root')
+    const { token, permission } = useRouteLoaderData('root')
 
     return (
         <ul className={classes.nav}>
@@ -16,8 +16,11 @@ function Navigation() {
             {token && <li className={classes['nav-item']}>
                 <NavLink to='/cart' className={({ isActive }) => isActive ? classes.active : undefined}>Cart</NavLink>
             </li>}
-            {token && <li className={classes['nav-item']}>
+            {(token && permission === 'admin') && <li className={classes['nav-item']}>
                 <NavLink to='/admin' className={({ isActive }) => isActive ? classes.active : undefined}>Admin</NavLink>
+            </li>}
+            {(token && permission === 'admin') && <li className={classes['nav-item']}>
+                <NavLink to='/user' className={({ isActive }) => isActive ? classes.active : undefined}>User</NavLink>
             </li>}
             {!token && <li className={classes['nav-item']}>
                 <NavLink to='/auth' className={({ isActive }) => isActive ? classes.active : undefined}>Auth</NavLink>

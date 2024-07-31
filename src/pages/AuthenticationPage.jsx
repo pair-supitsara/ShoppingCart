@@ -86,6 +86,8 @@ export async function action({ request }) {
     const result = await fetchdata(`http://localhost:8080/api/authen/${mode}`, authData)
     if (result && result.token) {
       localStorage.setItem('token', result.token)
+      localStorage.setItem('permission', result.permission)
+      localStorage.setItem('user_id', result.user_id)
       return redirect('/')
     }
     if (result && result.message) {

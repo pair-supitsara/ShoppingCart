@@ -6,10 +6,10 @@ export async function fetchdata(url, json) {
             "Content-Type": "application/json",
         }
     })
+    const res = await response.json();
     if (!response.ok) {
-        throw new Error(`Response status: ${response.status}`);
+        return res
     }
-    const rpjson = await response.json();
     
-    return rpjson.result
+    return res.result
 }

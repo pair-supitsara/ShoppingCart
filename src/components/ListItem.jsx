@@ -1,8 +1,8 @@
 import classes from './ListItem.module.css'
-import Button from '../UI/Button';
 import Input from '../UI/Input';
 import Modal from '../UI/Modal';
-import { useState, useEffect, useRef } from 'react';
+import CardProduct from './CardProduct';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { fetchdata } from '../util/api';
 import { generateFilename } from '../util/gen_random';
 import { useRouteLoaderData } from "react-router-dom";
@@ -29,19 +29,19 @@ function fnValidateData(json) {
 
 function ListItem({ type, render, setRender }) {
     const [products, setProducts] = useState()
-    const isEditable = (type === 'editable')
     const [isUpdated, setUpdated] = useState(false)
     const [isRemoved, setIsRemoved] = useState(false)
+    const [isAddedCart, setIsAddedCart] = useState(false)
     const selectedId = useRef(null);
-    let modalRomove, modalUpdate
+    let modalRomove, modalUpdate, modalAddtoCart
     const [message, setMessage] = useState(null)
     const name = useRef(null);
     const detail = useRef(null);
-    const token = useRouteLoaderData('root')
+    const { token, user_id } = useRouteLoaderData('root')
     const [image, setImage] = useState({
         file: null,
         filename: null
-      });
+    });
 
     useEffect(() => {
         const data = {}
@@ -65,10 +65,23 @@ function ListItem({ type, render, setRender }) {
         selectedId.current = id
     }
 
+    const removeProduct = useCallback(async () => { 
+        try {
+            const result = await fetchdata('http://localhost:8080/api/admin/removeproduct', { token, product_id: selectedId.current })
+            if (result && result.message) {
+                setMessage(result.message)
+                setRender((prev) => !prev)
+            }
+            setIsRemoved(false)
+        } catch (error) {
+            setMessage(error.message)
+        }
+    }, [])
+
     if (isRemoved) {
         modalRomove = (
         <Modal 
-            onConfirm={fnRemoveSelectedId} 
+            onConfirm={removeProduct} 
             onCancel={() => { setIsRemoved(false) }} 
         >
             <h3>Confirm remove item</h3>
@@ -76,29 +89,9 @@ function ListItem({ type, render, setRender }) {
         </Modal>)
     }
 
-    function fnRemoveSelectedId() {
-        async function removeProduct() {
-            try {
-                const result = await fetchdata('http://localhost:8080/api/admin/removeproduct', { product_id: selectedId.current })
-                if (result && result.message) {
-                    setMessage(result.message)
-                    setRender((prev) => !prev)
-                }
-                setIsRemoved(false)
-            } catch (error) {
-                setMessage(error.message)
-            }
-        }
-        removeProduct()
-    }
-
     function fnClickUpdateButton(id) {
         setUpdated(true)
         selectedId.current = id
-        setImage({
-            file: null,
-            filename: null
-        })
     }
 
     if (isUpdated) {
@@ -133,6 +126,7 @@ function ListItem({ type, render, setRender }) {
 
     function fnUpdateSelectedId() {
         const json = {
+            token,
             product_id: selectedId.current,
             name: name.current.value,
             detail: detail.current.value,
@@ -163,28 +157,62 @@ function ListItem({ type, render, setRender }) {
         }
     }
 
+    function fnClickAddCartButton(id) {
+        setIsAddedCart(true)
+        selectedId.current = id
+    }
+
+    const insertCart = useCallback(async () => {
+        try {
+            const json = {
+                token,
+                user_id: user_id,
+                product_id: selectedId.current,
+                quantity: 1
+            }
+            const result = await fetchdata('http://localhost:8080/api/customers/addtocart', json)
+            if (result && result.message) {
+                setMessage(result.message)
+            }
+            setIsAddedCart(false)
+        } catch (error) {
+            setMessage(error.message)
+        }
+    }, [user_id, selectedId])
+
+    if (isAddedCart) {
+        modalAddtoCart = (
+            <Modal onConfirm={insertCart} onCancel={() => { setIsAddedCart(false) }} >
+                isAddedCart
+            </Modal>
+        )
+    }
+
     return (
         <>
             {modalUpdate}
             {modalRomove}
+            {modalAddtoCart}
             {message && <Modal onCancel={() => setMessage('')}>
                 { message }
             </Modal>}
-            { !products && <Loader text='fetching data...' />}
+            { !products && <Loader text='fetching all products...' />}
             { products && <div className={classes.parentbox}>{
-                products.map((item) => 
-                    (<div key={item.product_id} className={classes.childrenbox}>
-                        <img src={item.url} className={classes.image} alt='hood' />
-                        <div className={classes.info}>
-                            <h3>{item.name}</h3>
-                            <p>{item.detail}</p>
-                            {(token && !isEditable) && <Button text='Add to cart' cssClass='navy' onClick={() => { }} />}
-                            {isEditable && <div className={classes.buttons}>
-                                <Button text='update' cssClass='navy' onClick={() => fnClickUpdateButton(item.product_id) } />
-                                <Button text='remove' cssClass='red' onClick={() => fnClickRemoveButton(item.product_id)} />
-                            </div>}
-                        </div>
-                    </div>)
+                products.map((item) => {
+                    return (
+                        <CardProduct
+                            key={item.product_id} 
+                            type={type} 
+                            product_id={item.product_id} 
+                            name={item.name}
+                            detail={item.detail} 
+                            url={item.url}
+                            token={token}
+                            fnClickAddCartButton={fnClickAddCartButton} 
+                            fnClickUpdateButton={fnClickUpdateButton}
+                            fnClickRemoveButton={fnClickRemoveButton}
+                        />)
+                    }
                 )
             }</div>
             }
